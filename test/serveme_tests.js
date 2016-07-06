@@ -31,6 +31,11 @@ describe('ServeMe HttpServer', function() {
     done();
   });
 
+  it('is exposed via httpServer', function(done) {
+    expect(server.httpServer()).to.equal(server.server.server);
+    done();
+  });
+
   after(function() {
     server.stop();
   });
@@ -111,7 +116,7 @@ describe('ServeMe Routes', function() {
 
     expect(server.routes.take("GET", "/api/user").callbacks[0]).to.be(callback);
     expect(server.routes.take("GET", "/api/user").fails[0]).to.be(fail);
-    
+
     done();
   });
 
@@ -148,7 +153,7 @@ describe('ServeMe Routes', function() {
 
   it('can success a require in a route', function(done) {
     server.reset();
-    
+
     var callback = function() { return "added a success route"; };
 
     var fail = function() { return ""; };
