@@ -36,6 +36,54 @@ describe('ServeMe HttpServer', function() {
   });
 });
 
+describe('ServeMe config', function() {
+
+  before(function(done) {
+    process.env['SERVE_ME_TEST_ENV_VAR_IP'] = '192.168.1.1';
+    done();
+  });
+
+  after(function(done) {
+    process.env['SERVE_ME_TEST_ENV_VAR_IP'] = undefined;
+    done();
+  });
+
+  it('will load the hostname from an env variable', function(done) {
+    server = require("..")({
+      log: false,
+      hostname_env_var : 'SERVE_ME_TEST_ENV_VAR_IP'
+    }, 3000);
+    expect(server).not.to.be(undefined);
+    expect(server.server).not.to.be(undefined);
+    expect(server.config.hostname).to.be('192.168.1.1');
+
+    done();
+  });
+
+  it('will will default the hostname', function(done) {
+    server = require("..")({
+      log: false
+    }, 3000);
+    expect(server).not.to.be(undefined);
+    expect(server.server).not.to.be(undefined);
+    expect(server.config.hostname).to.be('0.0.0.0');
+
+    done();
+  });
+
+  it('will will default the hostname if env var is not available', function(done) {
+    server = require("..")({
+      log: false,
+      hostname_env_var : 'SERVE_ME_TEST_ENV_VAR_IP_NOT_EXISTS'
+    }, 3000);
+    expect(server).not.to.be(undefined);
+    expect(server.server).not.to.be(undefined);
+    expect(server.config.hostname).to.be('0.0.0.0');
+
+    done();
+  });
+
+});
 
 describe('ServeMe Routes', function() {
   var server;
@@ -111,7 +159,7 @@ describe('ServeMe Routes', function() {
 
     expect(server.routes.take("GET", "/api/user").callbacks[0]).to.be(callback);
     expect(server.routes.take("GET", "/api/user").fails[0]).to.be(fail);
-    
+
     done();
   });
 
@@ -148,7 +196,7 @@ describe('ServeMe Routes', function() {
 
   it('can success a require in a route', function(done) {
     server.reset();
-    
+
     var callback = function() { return "added a success route"; };
 
     var fail = function() { return ""; };
